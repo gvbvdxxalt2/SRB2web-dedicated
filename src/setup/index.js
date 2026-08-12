@@ -38,7 +38,7 @@ function downloadGithubFile(repoInfo,webPath,targetPath) {
         }
     }, (response) => {
         var filestream = fs.createReadStream(targetPath);
-        response.pipe(filestream);
+        filestream.pipe(response);
 
         var totalBytes = +response.headers["Content-Length"] || 0;
         var bytes = 0;
@@ -53,9 +53,11 @@ function downloadGithubFile(repoInfo,webPath,targetPath) {
         });
         response.on("end", () => {
             console.log(`Downloaded ${name}.`);
+            resolve();
         });
     });
     request.end();
+    return promise;
 }
 
 function openReadline() {
