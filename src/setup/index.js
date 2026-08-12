@@ -100,15 +100,25 @@ async function doSetup() {
             var assetPath = path.join(paths.root, asset);
             if (!fs.existsSync(assetPath)) {
                 neededToDownload += 1;
-                await downloadGithubFile(DEFAULT_REPOINFO, DEFAULT_REPO_ASSET_PATH+asset);
+                await downloadGithubFile(DEFAULT_REPOINFO, DEFAULT_REPO_ASSET_PATH+asset, assetPath);
             } else {
                 console.log(`✅ Asset ${asset} is already downloaded.`);
             }
         }
 
+        for (var binary of paths.SRB2files) {
+            var binaryPath = path.join(paths.binNode, binary);
+            if (!fs.existsSync(binaryPath)) {
+                neededToDownload += 1;
+                await downloadGithubFile(DEFAULT_REPOINFO, DEFAULT_REPO_BIN_PATH+binary, binaryPath);
+            } else {
+                console.log(`✅ WebAssembly binary ${binary} is already downloaded.`);
+            }
+        }
+
         if (neededToDownload < 1) {
             console.log(
-                "You seem to have every file downloaded already!"+
+                "You seem to have every file & binary downloaded already!"+
                 "\nIf you're having trouble or it keeps crashing, you can delete"+
                 "\nthe game assets (located in current working directory) and also the"+
                 "\n\".bin\" folder, then rerun this command."
