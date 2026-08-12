@@ -5,16 +5,16 @@ var paths = require("../../paths.js");
 var process = require("process");
 
 function isSetup() {
-    if (!fs.existsSync(paths.internal)) {
-        return false;
-    }
-    if (!fs.existsSync(paths.binNode)) {
+    if (!fs.existsSync(paths.root)) {
         return false;
     }
     if (!fs.existsSync(paths.addons)) {
         return false;
     }
-    if (!fs.existsSync(paths.root)) {
+    if (!fs.existsSync(paths.binNode)) {
+        return false;
+    }
+    if (!fs.existsSync(paths.srb2Home)) {
         return false;
     }
     for (var file of paths.SRB2files) {
