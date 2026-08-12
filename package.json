@@ -1,0 +1,22 @@
+{
+  "name": "srb2web-dedicated",
+  "version": "1.0.0",
+  "description": "A dedicated server client for gvbvdxx's SRB2 v2.2.15 web port, this isn't a relay server!",
+  "license": "MIT",
+  "author": "Gvbvdxx",
+  "type": "commonjs",
+  "bin": {
+    "srb2wserver": "./src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "packageManager": "yarn@4.12.0",
+  "dependencies": {
+    "@roamhq/wrtc": "^0.10.0",
+    "commander": "^15.0.0",
+    "simple-peer": "^9.11.1",
+    "ws": "^8.21.3",
+    "wss": "^3.3.4"
+  }
+}
