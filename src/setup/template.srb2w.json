@@ -1,0 +1,9 @@
+{
+    "relay": {
+        "host": "srb2web-lan.onrender.com",
+        "secure": true
+    },
+    "netgame": {
+        "public": true
+    }
+}

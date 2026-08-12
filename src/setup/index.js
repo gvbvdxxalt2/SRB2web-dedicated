@@ -17,7 +17,7 @@ const DEFAULT_REPOINFO = {
 };
 const DEFAULT_REPO_ASSET_PATH = "game-assets/";
 const DEFAULT_REPO_BIN_PATH = "build-wasm-node/bin/";
-const BUILD_FILES = [ "srb2.js", "srb2.bin" ];
+const BUILD_FILES = [ "srb2.js", "srb2.wasm" ];
 
 function getRepoFileURL({user,repo,branch},filePath) {
     return `https://raw.githubusercontent.com/${user}/${repo}/${branch}/${filePath}`;
@@ -29,7 +29,6 @@ function downloadGithubFile(repoInfo,webPath,targetPath) {
     var promise = new Promise((r,err) => {resolve = r;reject = err;});
     var url = getRepoFileURL(repoInfo,webPath,targetPath);
     var name = webPath.split("/").pop();
-    console.log(`Downloading ${name}...`);
     var request = https.request({
         ...URL.parse(url),
         method: "GET",
@@ -37,24 +36,38 @@ function downloadGithubFile(repoInfo,webPath,targetPath) {
             "User-Agent": "Node.JS"
         }
     }, (response) => {
-        var filestream = fs.createReadStream(targetPath);
-        filestream.pipe(response);
+        if (response.statusCode < 200 || response.statusCode > 300) {
+            reject("Status code isn't OK. Got "+response.statusCode+".");
+            return;
+        }
+        var filestream = fs.createWriteStream(targetPath);
+        response.pipe(filestream);
 
-        var totalBytes = +response.headers["Content-Length"] || 0;
+        var totalBytes = +response.headers["content-length"] || 0;
         var bytes = 0;
 
         response.on("data", (chunk) => {
             bytes += chunk.length;
-            console.log(`Downloading ${name}... [${
-                totalBytes  !== 0 ?
+            readline.cursorTo(process.stdout, 0);
+            process.stdout.clearLine();
+            process.stdout.write(`Downloading ${name}... [${
+                totalBytes == 0 ?
                     (bytes + " bytes")
-                    : (Math.round((bytes / totalBytes) * 100) + "%")
+                    : (Math.round((totalBytes / bytes) * 100) + "%")
                 }]`);
         });
         response.on("end", () => {
-            console.log(`Downloaded ${name}.`);
+            readline.cursorTo(process.stdout, 0);
+            process.stdout.clearLine();
+            process.stdout.write(`Downloaded ${name}.\n`);
             resolve();
         });
+        response.on("error", (err) => {
+            reject(err);
+        });
+    });
+    request.on("error", (err) => {
+        reject(err);
     });
     request.end();
     return promise;
@@ -87,6 +100,9 @@ async function configureServer() {
 }
 
 async function doSetup() {
+    var defaultServerConfig = fs.readFileSync(paths.templateServerConfig);
+    var SRB2webConfig = fs.readFileSync(paths.templateSRB2webConfig);
+
     if (!fs.existsSync(paths.root)) {
         fs.mkdirSync(paths.root);
     }
@@ -96,6 +112,10 @@ async function doSetup() {
     if (!fs.existsSync(paths.binNode)) {
         fs.mkdirSync(paths.binNode);
     }
+    if (!fs.existsSync(paths.srb2Home)) {
+        fs.mkdirSync(paths.srb2Home);
+    }
+
     try{
         var neededToDownload = 0;
         for (var asset of paths.SRB2files) {
@@ -108,7 +128,7 @@ async function doSetup() {
             }
         }
 
-        for (var binary of paths.SRB2files) {
+        for (var binary of BUILD_FILES) {
             var binaryPath = path.join(paths.binNode, binary);
             if (!fs.existsSync(binaryPath)) {
                 neededToDownload += 1;
@@ -120,7 +140,7 @@ async function doSetup() {
 
         if (neededToDownload < 1) {
             console.log(
-                "You seem to have every file & binary downloaded already!"+
+                "⚠ You seem to have every file & binary downloaded already!"+
                 "\nIf you're having trouble or it keeps crashing, you can delete"+
                 "\nthe game assets (located in current working directory) and also the"+
                 "\n\".bin\" folder, then rerun this command."
@@ -130,8 +150,20 @@ async function doSetup() {
         console.log("⚠ Unable to download files, you'll have to provide them manually.");
         console.log("Download error: "+e);
         await questionAsync("Press Enter to continue.");
-        closeReadline();
     }
+    closeReadline();
+
+    console.log("⚙ Writing configuration files...");
+
+    if (!fs.existsSync(paths.serverConfig)) {
+        fs.writeFileSync(paths.serverConfig, defaultServerConfig);
+    }
+
+    if (!fs.existsSync(paths.SRB2webConfig)) {
+        fs.writeFileSync(paths.SRB2webConfig, SRB2webConfig);
+    }
+
+    console.log("✅ Everything is setup!");
 }
 
 module.exports = {
