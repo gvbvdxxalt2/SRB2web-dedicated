@@ -16,7 +16,10 @@ require("./netutil.js");
 (async function () {
     process.chdir(paths.root);
     var Module = await createSRB2Module({
-        noInitialRun: true
+        noInitialRun: true,
+        onExit: (code) => {
+            setTimeout(() => process.exit(code),100);
+        }
     });
     global.Module = Module;
 
@@ -40,6 +43,10 @@ require("./netutil.js");
     var arguments = ["-dedicated", "-home", paths.root].concat(fileArguments);
     
     Module.callMain(arguments);
+
+    process.on('SIGINT', () => {
+        Module.ccall('SRB2_SendGreenTerminal', 'void', ['string'], ["quit\n"]);
+    });
 
     process.stdin.on("data", (data) => {
         Module.ccall('SRB2_SendGreenTerminal', 'void', ['string'], [""+data]);
