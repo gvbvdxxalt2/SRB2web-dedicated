@@ -45,7 +45,12 @@ require("./netutil.js");
     Module.callMain(arguments);
 
     process.on('SIGINT', () => {
-        Module.ccall('SRB2_SendGreenTerminal', 'void', ['string'], ["quit\n"]);
+        try{
+            Module.ccall('SRB2_SendGreenTerminal', 'void', ['string'], ["quit\n"]);
+        }catch(e){}
+        setTimeout(() => {
+            process.exit();
+        },2000);
     });
 
     process.stdin.on("data", (data) => {
