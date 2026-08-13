@@ -40,4 +40,8 @@ require("./netutil.js");
     var arguments = ["-dedicated", "-home", paths.root].concat(fileArguments);
     
     Module.callMain(arguments);
+
+    process.stdin.on("data", (data) => {
+        Module.ccall('SRB2_SendGreenTerminal', 'void', ['string'], [""+data]);
+    });
 })();
