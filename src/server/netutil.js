@@ -3,6 +3,7 @@ var http = require("http");
 var https = require("https");
 var ws = require("ws");
 var URL = require("url");
+var {configuration} = require("./config.js");
 
 function fetch(url, options = {}) {
   return new Promise((resolve, reject) => {
@@ -42,7 +43,7 @@ function fetch(url, options = {}) {
 global.fetch = fetch;
 
 global.location = {
-  protocol: "https:"
+  protocol: (configuration.relay.secure ? "https:" : "http:")
 };
 
 var wrtc = require("@roamhq/wrtc");

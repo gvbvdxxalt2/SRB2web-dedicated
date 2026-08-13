@@ -1,3 +1,9 @@
+var paths = require("./paths.js");
+var fs = require("fs");
+var path = require("path");
+
+var addonTypes = ["wad","pk3","lua"];
+
 function findAddons() {
   var addons = [];
   function loopThrough(dir) {
@@ -10,7 +16,7 @@ function findAddons() {
       }
 
       var type = (""+file).split(".").pop();
-      if (addonTypes.indexOf(type) > -1) {
+      if (true) {
         addons.push({
             absolute,
             name: file,

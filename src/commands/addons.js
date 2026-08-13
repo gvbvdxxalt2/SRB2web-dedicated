@@ -16,14 +16,16 @@ programAddons.command("list", { isDefault: true })
     console.log("🔎 Scanning for addons...");
     var addons = findAddons();
     if (addons.length < 1) {
-        console.log("❌ No addons found! Make sure they're placed in the \".srb2addons\" directory!");
+        console.log("❌ No addons found! Make sure they're placed in the \".addons\" directory!");
         return;
     }
 
-    console.log("📂 "+addons.length+(addons.length > 1 ? "addons" : "addon")+" found.");
+    console.log("📂 "+addons.length+(addons.length > 1 ? " addons" : " addon")+" found.");
 
     for (var addon of addons) {
-        console.log("");
+        console.log(`${addon.name}`);
     }
+
+    console.log("✅ Addon(s) will be applied on startup.");
 
   });
