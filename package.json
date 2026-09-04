@@ -1,6 +1,6 @@
 {
   "name": "srb2web-dedicated",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A dedicated server client for gvbvdxx's SRB2 v2.2.15 web port, this isn't a relay server!",
   "license": "MIT",
   "author": "Gvbvdxx",
